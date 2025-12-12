@@ -10,6 +10,7 @@ import java.util.Collection;
 import java.util.List;
 
 import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.apache.http.HttpStatus.*;
 
 @RunWith(Parameterized.class)
 public class TestOrderCreation extends BaseTest{
@@ -48,7 +49,7 @@ public class TestOrderCreation extends BaseTest{
     public void successfulOrderCreation() {
         Order order = createOrder().withColor(this.color);
         orderSteps.createOrder(order)
-        .statusCode(201)
+        .statusCode(SC_CREATED)
         .body("track", notNullValue());
     }
 }

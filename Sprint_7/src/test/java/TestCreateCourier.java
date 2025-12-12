@@ -6,10 +6,10 @@ import org.junit.Test;
 import ru.yandex.practicum.models.Courier;
 import ru.yandex.practicum.steps.CourierSteps;
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.core.Is.is;
+import static org.apache.http.HttpStatus.*;
 
-public class TestCourier extends BaseTest {
+public class TestCreateCourier extends BaseTest {
 
     private Courier courier;
     private Faker faker = new Faker();
@@ -32,7 +32,7 @@ public class TestCourier extends BaseTest {
     @DisplayName("Тест на добавление курьера")
     public void addedNewCourier() {
         courierSteps.createCourier(courier)
-                .statusCode(201)
+                .statusCode(SC_CREATED)
                 .body("ok", is(true));
     }
 
@@ -41,7 +41,7 @@ public class TestCourier extends BaseTest {
     public void cantAddCourierWithoutLogin() {
         courier.withLogin("");
         courierSteps.createCourier(courier)
-                .statusCode(400)
+                .statusCode(SC_BAD_REQUEST)
                 .body("message", equalTo("Недостаточно данных для создания учетной записи"));
         this.shouldDeleteCourier = false;
     }
@@ -51,7 +51,7 @@ public class TestCourier extends BaseTest {
     public void cantAddCourierWithoutPassword() {
         courier.withPassword("");
         courierSteps.createCourier(courier)
-                .statusCode(400)
+                .statusCode(SC_BAD_REQUEST)
                 .body("message", equalTo("Недостаточно данных для создания учетной записи"));
         this.shouldDeleteCourier = false;
     }
@@ -61,7 +61,7 @@ public class TestCourier extends BaseTest {
     public void cantAddCourierWithoutFirstName() {
         courier.withFirstName("");
         courierSteps.createCourier(courier)
-                .statusCode(400)
+                .statusCode(SC_BAD_REQUEST)
                 .body("message", equalTo("Недостаточно данных для создания учетной записи"));
         this.shouldDeleteCourier = false;
     }
@@ -71,58 +71,9 @@ public class TestCourier extends BaseTest {
     public void cantAddCourierWithSameLogin() {
         courierSteps.createCourier(courier);
         courierSteps.createCourier(courier)
-                .statusCode(409)
+                .statusCode(SC_CONFLICT)
                 .and()
                 .body("message", equalTo("Этот логин уже используется"));
-    }
-
-    @Test
-    @DisplayName("Тест на логин курьера")
-    public void loginCourier(){
-        courierSteps.createCourier(courier);
-        courierSteps.loginCourier(courier)
-                .statusCode(200)
-                .body("id", notNullValue());
-    }
-
-    @Test
-    @DisplayName("Тест на логин курьера с пустым полем логин")
-    public void cantLoginWithoutLogin(){
-        courierSteps.createCourier(courier);
-        courier.withLogin("");
-        courierSteps.loginCourier(courier)
-                .statusCode(400)
-                .body("message", equalTo("Недостаточно данных для входа"));
-    }
-
-    @Test
-    @DisplayName("Тест на логин курьера с пустым полем пароль")
-    public void cantLoginWithoutPassword(){
-        courierSteps.createCourier(courier);
-        courier.withPassword("");
-        courierSteps.loginCourier(courier)
-                .statusCode(400)
-                .body("message", equalTo("Недостаточно данных для входа"));
-    }
-
-    @Test
-    @DisplayName("Тест на логин курьера с неверным логином")
-    public void cantLoginWithFakeLogin(){
-        courierSteps.createCourier(courier);
-        courier.withLogin("Baobab228");
-        courierSteps.loginCourier(courier)
-                .statusCode(404)
-                .body("message", equalTo("Учетная запись не найдена"));
-    }
-
-    @Test
-    @DisplayName("Тест на логин курьера с неверным паролем")
-    public void cantLoginWithFakePassword(){
-        courierSteps.createCourier(courier);
-        courier.withPassword("0123040501");
-        courierSteps.loginCourier(courier)
-                .statusCode(404)
-                .body("message", equalTo("Учетная запись не найдена"));
     }
 
     @After
